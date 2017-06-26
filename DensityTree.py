@@ -1,7 +1,12 @@
 
 # coding: utf-8
 
-# In[42]:
+# In[83]:
+
+print(1)
+
+
+# In[103]:
 
 import numpy as np
 from math import isnan
@@ -75,7 +80,6 @@ class RandomDensityTree:
         self.cov=np.cov(np.transpose(data))
         self.rootnode=Node(data,self.cov,[],self.tree,num_splits=self.num_splits,min_infogain=self.min_infogain,max_depth=self.max_depth,pointer=0)
         self.tree[0]=self.rootnode
-        print(self.rootnode.get_results())
 
     def predict(self,points):
         new=[]
@@ -85,14 +89,21 @@ class RandomDensityTree:
     
     def max_prob():
         return rootnode.maxprob()
-    #def extend():
-     #   np.concatenate([self.tree,np.zeros(30)],axis=0)
-    def get_results(self):
-    #    print(self.tree)
-    #    print(self.root)
-        return self.rootnode.get_results()
-    def leafnodes(self):
-        return self.rootnode.leafnodes()
+
+    def get_means(self):
+        means=[]
+        self.rootnode.get_means(means)
+        return means
+    
+    def get_split_info(self):
+        histories=[]
+        self.rootnode.get_split_info(means)
+        return histories
+    
+    def leaf_nodes(self):
+        leafs=[]
+        self.rootnode.leaf_nodes(leafs)
+        return leafs
     
 class Node:
     
@@ -105,15 +116,20 @@ class Node:
         self.tree=tree
         self.num_splits=num_splits
     #    tree[pointer]={''}
-        
+        self.split=float('nan')
+        self.split_dim=float('nan')
         self.history=history
         self.root=data
         self.mean=np.mean(data,axis=0)
         self.cov=cov
         self.isLeaf=False
+        self.left_child=float('nan')
+        self.right_child=float('nan')
         if(max_depth==0 or data.shape[1]==1):
             self.isLeaf=True
+           
         else:
+            
             rnd_splits=[]
             for dim in range(int(num_splits)):
                 direction=rnd.choice([0,1])
@@ -153,13 +169,15 @@ class Node:
                     info_gains.append(info_gain(data,self.cov,left_data,cov_l,right_data,cov_r)) #entropies of left and right data)
                     #information gain if this split is used
             if len(info_gains)==0:
-                self.isleaf=True
+                self.isLeaf=True
+                   
             else:
+         
                 best=np.argmax(info_gains)
                 print('best infogain: '+str(info_gains[best]))
                 print(min_infogain)
                 if info_gains[best] >= min_infogain:
-                    print('ho')
+             
                     self.split=rnd_splits[best]['split']   #best split
                     self.split_dim=rnd_splits[best]['direction'] 
                     history.append(rnd_splits[best])
@@ -172,14 +190,16 @@ class Node:
                     leftnode=Node(left_datas[best],covs_left[best],history,tree,self.num_splits,self.min_infogain,self.maxdepth-1,2*pointer+1)
                     tree[2*pointer+1]=leftnode
                     self.left_child=leftnode
+            
                    # print(len(right_datas[best],covs_right[best],history,self.num_splits,self.min_infogain,s2))
                     rightnode=Node(right_datas[best],covs_right[best],history,tree,self.num_splits,self.min_infogain,self.maxdepth-1,2*pointer+2)
                     tree[2*pointer+2]=rightnode
                     self.right_child=rightnode
-                    print('hi')
+                    
                 else:
+         
                     self.isLeaf=True
-                                  
+        print((self.isLeaf,self.left_child))
     def predict(point):
         if isLeaf==True:
             return self.pointer
@@ -188,23 +208,41 @@ class Node:
                 return self.left_child.predict(point)
             else:
                 return self.right_child.predict(point)
-            
-    def get_results(self):
+    '''         
+     def get_split_info(self,histories):
         if(self.isLeaf==True):
-            return {'mean':self.mean,'cov':self.cov}
+            return self.history
             print('whoa')
         else:
             return [{'split':self.split,'split_dim':self.split_dim,},{'left_child':self.left_child.get_results()},{'right_child':self.right_child.get_results()}]
-   
+    '''
+    def get_split_info(self,histories):
+        if(self.isLeaf==True):
+            histories.append(self.history)
+        else:
+            self.get_histories(histories)
+
+    def get_means(self,means):
+        if(self.isLeaf==True):
+            means.append(self.mean)
+        else:
+            self.get_means(means)
+            
     def maxprob():
         return 1
     
-    def leafnodes(self):
-        if self.isLeaf == True:
-            return 1
+    def leaf_nodes(self,leafs):
+        if self.left_child.isLeaf == True:
+            leafs.append(self.left_child)
         else:
-            return left_child.leafnodes()+right_child.lefnodes()
+            self.left_child.leaf_nodes(leafs)
+        if self.right_child.isLeaf == True:
+            leafs.append(self.right_child)
+        else:
+            self.right_child.leaf_nodes(leafs)
         
+    def isnan(self):
+        return False
     
 def partition_function(tree, x):
     # generate a lot of samples in the bounds of the data and the size of the bounded shape
@@ -245,7 +283,7 @@ theta= max(I)
 '''
 
 
-# In[43]:
+# In[104]:
 
 get_ipython().magic('matplotlib inline')
 import matplotlib.pyplot as plt
@@ -274,14 +312,17 @@ DensityTree.fit(data)
 print(DensityTree.get_results())
 
 
-# In[8]:
+# In[107]:
 
-print(data)
+nodes=DensityTree.leaf_nodes()
 plt.plot(data[:,0],data[:,1], "o")
-plt.plot( 4.64157772,  0.63988413,"o")
-plt.plot( 3.03334449,  2.46542821,"o")
-plt.plot( 4.24936537,  5.14213751,"o")
-plt.plot( 3.23164995,  5.9834305 ,"o")
+for d in nodes:
+    plt.plot(d.mean[0],d.mean[1],'o')
+    
+#plt.plot( 4.64157772,  0.63988413,"o")
+#plt.plot( 3.03334449,  2.46542821,"o")
+#plt.plot( 4.24936537,  5.14213751,"o")
+#plt.plot( 3.23164995,  5.9834305 ,"o")
 
 
 # In[125]:
