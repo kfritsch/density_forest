@@ -6,7 +6,7 @@
 print(1)
 
 
-# In[103]:
+# In[109]:
 
 import numpy as np
 from math import isnan
@@ -56,6 +56,7 @@ def split_data(data,split,direction):
         else:
             #print(1,left_data[d].shape[0])
             right_data=np.append(right_data,np.reshape(data[d],(1,data[d].shape[0])),axis=0)
+            
    # print(left_data)
     left_data=np.delete(left_data,0,axis=0)
     right_data=np.delete(right_data,0,axis=0)
@@ -88,7 +89,11 @@ class RandomDensityTree:
         return new
     
     def max_prob():
-        return rootnode.maxprob()
+        leafs=self.leaf_nodes()
+        probs=[]
+        for l in leafs:
+            probs.append(np.det(cov))*math.sqrt(2*math.pi)
+        return max(probs)
 
     def get_means(self):
         means=[]
@@ -99,7 +104,8 @@ class RandomDensityTree:
         histories=[]
         self.rootnode.get_split_info(means)
         return histories
-    
+   # def maxinfo(self):
+    #    np.cov(np.transpose(left_data))
     def leaf_nodes(self):
         leafs=[]
         self.rootnode.leaf_nodes(leafs)
@@ -248,8 +254,8 @@ def partition_function(tree, x):
     # generate a lot of samples in the bounds of the data and the size of the bounded shape
     samples, b_size = generate_monte_carlo_sample(x)
     # add gaussian probability dimension for those samples
-  #  g_probs_samples = np.random.random(len(samples))*tree.max_prob
-  #  b_size = b_size*tree.max_prob
+    g_probs_samples = np.random.random(len(samples))*tree.max_prob
+    b_size = b_size*tree.max_prob
     # predict the target leaf nodes for all samples
     leaf_node_ids = tree.predict(samples)
     # compute the distribution integral over each leaf node
@@ -283,7 +289,7 @@ theta= max(I)
 '''
 
 
-# In[104]:
+# In[110]:
 
 get_ipython().magic('matplotlib inline')
 import matplotlib.pyplot as plt
@@ -312,13 +318,13 @@ DensityTree.fit(data)
 print(DensityTree.get_results())
 
 
-# In[107]:
+# In[112]:
 
 nodes=DensityTree.leaf_nodes()
 plt.plot(data[:,0],data[:,1], "o")
 for d in nodes:
     plt.plot(d.mean[0],d.mean[1],'o')
-    
+    plt.savefig('results')
 #plt.plot( 4.64157772,  0.63988413,"o")
 #plt.plot( 3.03334449,  2.46542821,"o")
 #plt.plot( 4.24936537,  5.14213751,"o")
