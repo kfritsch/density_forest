@@ -6,14 +6,14 @@
 print(1)
 
 
-# In[109]:
+# In[26]:
 
 import numpy as np
 from math import isnan
 import threading as trd
 import math
 import random as rnd
-
+import copy
     
 
 #def estimate_gaussian(data):
@@ -124,7 +124,8 @@ class Node:
     #    tree[pointer]={''}
         self.split=float('nan')
         self.split_dim=float('nan')
-        self.history=history
+        self.history=copy.deepcopy(history)
+        
         self.root=data
         self.mean=np.mean(data,axis=0)
         self.cov=cov
@@ -143,17 +144,17 @@ class Node:
                 rnd_splits.append({'split':rnd_split,'direction':direction})
 
             left_datas=[]
-            info_gains=[]
+            info_gains=np.zeros(num_splits)
             right_datas=[]
 
             covs_left=[]
             covs_right=[]
 
-            for s in range(len(rnd_splits)):#or the number of random splits
+            for s in range(num_splits):#or the number of random splits
                 
                 left_data,right_data=split_data(data,rnd_splits[s]['split'],rnd_splits[s]['direction'])
                 if(left_data.shape[0]>2 and right_data.shape[0]>2):
-
+                    print('split ' +str(rnd_splits[s]['split'])+'  direction: '+str(rnd_splits[s]['direction']))
                    # left_data=[] #data left of the split
                    # right_data=[] #data right of the split
                     #for a in data:
@@ -172,7 +173,12 @@ class Node:
                     covs_left.append(cov_l)
                     covs_right.append(cov_r)
                  #   print(left_data)
-                    info_gains.append(info_gain(data,self.cov,left_data,cov_l,right_data,cov_r)) #entropies of left and right data)
+                    info_gains[s]=(info_gain(data,self.cov,left_data,cov_l,right_data,cov_r)) #entropies of left and right data)
+                else:
+                    right_datas.append(float('nan'))
+                    left_datas.append(float('nan'))
+                    covs_left.append(float('nan'))
+                    covs_right.append(float('nan'))
                     #information gain if this split is used
             if len(info_gains)==0:
                 self.isLeaf=True
@@ -186,19 +192,23 @@ class Node:
              
                     self.split=rnd_splits[best]['split']   #best split
                     self.split_dim=rnd_splits[best]['direction'] 
-                    history.append(rnd_splits[best])
+                    print('history:'+str(history))
+                    self.history.append(rnd_splits[best])
                     if(2*pointer+2>=len(tree)):
                         for i in range((2*pointer+2)-len(tree)+1):
                             tree.append(0)
                    # print(left_datas[best].shape)
                     #print(right_datas[best].shape)
                     #print((left_datas[best],covs_left[best],history,tree,self.num_splits,self.min_infogain,self.maxdepth-1,2*pointer+1))
-                    leftnode=Node(left_datas[best],covs_left[best],history,tree,self.num_splits,self.min_infogain,self.maxdepth-1,2*pointer+1)
+                    self.history[len(self.history)-1]['child']='left'
+                    leftnode=Node(left_datas[best],covs_left[best],self.history,tree,self.num_splits,self.min_infogain,self.maxdepth-1,2*pointer+1)
                     tree[2*pointer+1]=leftnode
                     self.left_child=leftnode
             
                    # print(len(right_datas[best],covs_right[best],history,self.num_splits,self.min_infogain,s2))
-                    rightnode=Node(right_datas[best],covs_right[best],history,tree,self.num_splits,self.min_infogain,self.maxdepth-1,2*pointer+2)
+                    
+                    self.history[len(self.history)-1]['child']='right'
+                    rightnode=Node(right_datas[best],covs_right[best],self.history,tree,self.num_splits,self.min_infogain,self.maxdepth-1,2*pointer+2)
                     tree[2*pointer+2]=rightnode
                     self.right_child=rightnode
                     
@@ -289,7 +299,7 @@ theta= max(I)
 '''
 
 
-# In[110]:
+# In[27]:
 
 get_ipython().magic('matplotlib inline')
 import matplotlib.pyplot as plt
@@ -313,25 +323,68 @@ DensityTree=RandomDensityTree()
 DensityTree.fit(data)
 
 
-# In[139]:
+# In[24]:
 
 print(DensityTree.get_results())
 
 
-# In[112]:
+# In[25]:
 
 nodes=DensityTree.leaf_nodes()
 plt.plot(data[:,0],data[:,1], "o")
 for d in nodes:
-    plt.plot(d.mean[0],d.mean[1],'o')
-    plt.savefig('results')
+    print(d.history)
+    print(d.root.shape)
+    plt.plot(d.mean[0],d.mean[1],'o',color='r')
+ #   lines=d.history
+  #  if lines['direction']==0:
+   #     plot
+   # plt.savefig('results')
+plt.plot([0,6],[5.358583094356550,5.358583094356550])
+#plt.plot([0,6],[ 4.0724581571601854, 4.0724581571601854])
+plt.plot([0,6],[  3.245427000841719,  3.245427000841719])
+plt.plot([  0.86719180226239123,  0.86719180226239123],[0,6])
+plt.plot([0,6],[ 5.7306771060727044,  5.7306771060727044])
+#plt.plot( 0.86719180226239123, 'direction': 0)
+#plt.plot([2.0024517583718917,2.0024517583718917],[-1,6])
+#plt.plot([0.9883004157571309,0.9883004157571309],[-1,6])
+
+
 #plt.plot( 4.64157772,  0.63988413,"o")
 #plt.plot( 3.03334449,  2.46542821,"o")
 #plt.plot( 4.24936537,  5.14213751,"o")
 #plt.plot( 3.23164995,  5.9834305 ,"o")
 
 
-# In[125]:
+# In[194]:
+
+nodes=DensityTree.leaf_nodes()
+plt.plot(data[:,0],data[:,1], "o")
+for d in nodes:
+    print(d.history)
+    print(d.root.shape)
+    plt.plot(d.mean[0],d.mean[1],'o',color='r')
+    lines=d.history
+    if lines['direction']==0:
+        plot
+    plt.savefig('results')
+plt.plot([0,6],[5.358583094356550,5.358583094356550])
+#plt.plot([0,6],[ 4.0724581571601854, 4.0724581571601854])
+plt.plot([0,6],[  3.245427000841719,  3.245427000841719])
+plt.plot([  0.86719180226239123,  0.86719180226239123],[0,6])
+plt.plot([0,6],[ 5.7306771060727044,  5.7306771060727044])
+#plt.plot( 0.86719180226239123, 'direction': 0)
+#plt.plot([2.0024517583718917,2.0024517583718917],[-1,6])
+#plt.plot([0.9883004157571309,0.9883004157571309],[-1,6])
+
+
+#plt.plot( 4.64157772,  0.63988413,"o")
+#plt.plot( 3.03334449,  2.46542821,"o")
+#plt.plot( 4.24936537,  5.14213751,"o")
+#plt.plot( 3.23164995,  5.9834305 ,"o")
+
+
+# In[181]:
 
 data2 = np.zeros([100,2])
 for i in range(100):
