@@ -221,7 +221,7 @@ class Node:
         if self.isLeaf==True:
             return self.pointer
         else:
-            if point[self.split_dim]>=self.split:
+            if point[self.split_dim]<=self.split:
                 return self.left_child.predict(point)
             else:
                 return self.right_child.predict(point)
