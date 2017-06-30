@@ -76,7 +76,7 @@ class RandomDensityTree:
         self.num_splits=num_splits
         
     def fit(self,data,axis=0):
-        if(axis=1):
+        if(axis==1):
             data=np.transpose(data)
         self.root=data
         self.mean = np.mean(data,axis=0)
