@@ -6,7 +6,7 @@
 print(1)
 
 
-# In[26]:
+# In[3]:
 
 import numpy as np
 from math import isnan
@@ -85,7 +85,7 @@ class RandomDensityTree:
     def predict(self,points):
         new=[]
         for p in points:
-            new.append(rootnode.predict(p))
+            new.append(self.rootnode.predict(p))
         return new
     
     def max_prob():
@@ -216,11 +216,11 @@ class Node:
          
                     self.isLeaf=True
         print((self.isLeaf,self.left_child))
-    def predict(point):
-        if isLeaf==True:
+    def predict(self,point):
+        if self.isLeaf==True:
             return self.pointer
         else:
-            if point[split_dim]>=split:
+            if point[self.split_dim]>=self.split:
                 return self.left_child.predict(point)
             else:
                 return self.right_child.predict(point)
@@ -266,7 +266,7 @@ def partition_function(tree, x):
     # add gaussian probability dimension for those samples
     g_probs_samples = np.random.random(len(samples))*tree.max_prob
     b_size = b_size*tree.max_prob
-    # predict the target leaf nodes for all samples
+    # predict the target leb af nodes for all samples
     leaf_node_ids = tree.predict(samples)
     # compute the distribution integral over each leaf node
     g_ints = np.zeros((len(tree.leaf_nodes),))
@@ -280,7 +280,18 @@ def partition_function(tree, x):
         g_cnt = np.sum(g_probs_samples<=g_probs)
         g_ints[ln_id] = g_cnt/len(samples)*b_size
     
-    
+
+
+def generate_monte_carlo_sample(X, num_samples=1000000):
+    """
+    Generate more sample points
+    """
+    samples = np.random.rand(num_sample,len(x[0]))
+    d_mins = np.min(X,axis=0)
+    d_maxs = np.max(X,axis=0)
+    samples = np.add(np.multiply(samples,d_maxs-d_mins),d_mins)
+    b_size = np.prod(d_maxs-d_mins)
+    return samples, b_size    
 '''
 class RandomDensityForest:
     def _init(self,max_length=10,num_trees=10):
@@ -299,7 +310,7 @@ theta= max(I)
 '''
 
 
-# In[27]:
+# In[4]:
 
 get_ipython().magic('matplotlib inline')
 import matplotlib.pyplot as plt
@@ -322,13 +333,21 @@ for i in range(10):
 DensityTree=RandomDensityTree()
 DensityTree.fit(data)
 
+print(partition_function(DensityTree,
+# In[2]:
+
+
+DensityTree2=RandomDensityTree()
+DensityTree2.fit(data)
+DensityTree2.predict([[2,3],[4,5]])
+
 
 # In[24]:
 
 print(DensityTree.get_results())
 
 
-# In[25]:
+# In[7]:
 
 nodes=DensityTree.leaf_nodes()
 plt.plot(data[:,0],data[:,1], "o")
@@ -340,11 +359,15 @@ for d in nodes:
   #  if lines['direction']==0:
    #     plot
    # plt.savefig('results')
-plt.plot([0,6],[5.358583094356550,5.358583094356550])
+plt.plot([3.4611913424559244,3.4611913424559244],[0,6])
 #plt.plot([0,6],[ 4.0724581571601854, 4.0724581571601854])
-plt.plot([0,6],[  3.245427000841719,  3.245427000841719])
-plt.plot([  0.86719180226239123,  0.86719180226239123],[0,6])
-plt.plot([0,6],[ 5.7306771060727044,  5.7306771060727044])
+plt.plot([0,6],[ 2.2392637110032361, 2.2392637110032361])
+plt.plot([0,6],[ 2.6017827096744832,  2.6017827096744832])
+
+plt.plot([0,6],[4.3153900996135484,  4.3153900996135484])
+
+plt.plot([0,6],[ 3.3000801823937387, 3.3000801823937387])
+
 #plt.plot( 0.86719180226239123, 'direction': 0)
 #plt.plot([2.0024517583718917,2.0024517583718917],[-1,6])
 #plt.plot([0.9883004157571309,0.9883004157571309],[-1,6])
