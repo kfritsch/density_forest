@@ -136,7 +136,7 @@ class Node:
         self.isLeaf=False
         self.left_child=float('nan')
         self.right_child=float('nan')
-        if(max_depth==0 or data.shape[1]==1):
+        if(max_depth==0 or data.shape[0]==1):
             self.isLeaf=True
            
         else:
