@@ -6,7 +6,7 @@
 print(1)
 
 
-# In[3]:
+# In[6]:
 
 import numpy as np
 from math import isnan
@@ -86,6 +86,7 @@ class RandomDensityTree:
         new=[]
         for p in points:
             new.append(self.rootnode.predict(p))
+        new=np.array(new)
         return new
     
     def max_prob():
@@ -109,7 +110,7 @@ class RandomDensityTree:
     def leaf_nodes(self):
         leafs=[]
         self.rootnode.leaf_nodes(leafs)
-        return leafs
+        return np.array(leafs)
     
 class Node:
     
@@ -248,13 +249,15 @@ class Node:
         return 1
     
     def leaf_nodes(self,leafs):
-        if self.left_child.isLeaf == True:
-            leafs.append(self.left_child)
+      #  if self.left_child.isLeaf == True:
+       #     leafs.append(self.left_child.pointer)
+        if(self.isLeaf==True):
+            leafs.append(self.pointer)
         else:
             self.left_child.leaf_nodes(leafs)
-        if self.right_child.isLeaf == True:
-            leafs.append(self.right_child)
-        else:
+      #  if self.right_child.isLeaf == True:
+       #     leafs.append(self.right_child)
+        #else:
             self.right_child.leaf_nodes(leafs)
         
     def isnan(self):
@@ -310,7 +313,13 @@ theta= max(I)
 '''
 
 
-# In[4]:
+# In[11]:
+
+import numpy as np
+print(DensityTree.leaf_nodes())
+
+
+# In[7]:
 
 get_ipython().magic('matplotlib inline')
 import matplotlib.pyplot as plt
@@ -333,8 +342,8 @@ for i in range(10):
 DensityTree=RandomDensityTree()
 DensityTree.fit(data)
 
-print(partition_function(DensityTree,
-# In[2]:
+print(DensityTree.leaf
+# In[8]:
 
 
 DensityTree2=RandomDensityTree()
