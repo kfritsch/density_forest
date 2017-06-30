@@ -75,7 +75,9 @@ class RandomDensityTree:
         self.min_infogain=min_infogain
         self.num_splits=num_splits
         
-    def fit(self,data):
+    def fit(self,data,axis=0):
+        if(axis=1):
+            data=np.transpose(data)
         self.root=data
         self.mean = np.mean(data,axis=0)
         self.cov=np.cov(np.transpose(data))
@@ -115,6 +117,7 @@ class RandomDensityTree:
 class Node:
     
     def __init__(self,data,cov,history,tree,num_splits,min_infogain,max_depth,pointer):
+
         #self.min_infgain=min_infgain
         self.maxdepth=max_depth
         self.min_infogain=min_infogain
@@ -319,6 +322,12 @@ theta= max(I)
 
 import numpy as np
 print(DensityTree.get_means())
+
+
+# In[26]:
+
+print(data.shape)
+print(np.transpose(data))
 
 
 # In[22]:
