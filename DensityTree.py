@@ -6,7 +6,7 @@
 print(1)
 
 
-# In[6]:
+# In[20]:
 
 import numpy as np
 from math import isnan
@@ -65,7 +65,7 @@ def split_data(data,split,direction):
 
 class RandomDensityTree:
 
-    def __init__(self,max_depth=10,num_splits=10,min_infogain=1.5):
+    def __init__(self,max_depth=10,num_splits=50,min_infogain=2):
         self.max_depth = max_depth
         #self.root=data
         tree=[]
@@ -237,13 +237,15 @@ class Node:
         if(self.isLeaf==True):
             histories.append(self.history)
         else:
-            self.get_histories(histories)
+            self.left_child.get_histories(histories)
+            self.right_child.get_histories(histories)
 
     def get_means(self,means):
         if(self.isLeaf==True):
             means.append(self.mean)
         else:
-            self.get_means(means)
+            self.left_child.get_means(means)
+            self.right_child.get_means(means)
             
     def maxprob():
         return 1
@@ -289,7 +291,7 @@ def generate_monte_carlo_sample(X, num_samples=1000000):
     """
     Generate more sample points
     """
-    samples = np.random.rand(num_sample,len(x[0]))
+    samples = np.random.rand(num_samples,len(X[0]))
     d_mins = np.min(X,axis=0)
     d_maxs = np.max(X,axis=0)
     samples = np.add(np.multiply(samples,d_maxs-d_mins),d_mins)
@@ -313,16 +315,17 @@ theta= max(I)
 '''
 
 
-# In[11]:
+# In[23]:
 
 import numpy as np
-print(DensityTree.leaf_nodes())
+print(DensityTree.get_means())
 
 
-# In[7]:
+# In[22]:
 
 get_ipython().magic('matplotlib inline')
 import matplotlib.pyplot as plt
+#
 
 data = np.zeros([100,2])
 for i in range(30):
@@ -343,7 +346,7 @@ DensityTree=RandomDensityTree()
 DensityTree.fit(data)
 
 print(DensityTree.leaf
-# In[8]:
+# In[15]:
 
 
 DensityTree2=RandomDensityTree()
@@ -351,19 +354,20 @@ DensityTree2.fit(data)
 DensityTree2.predict([[2,3],[4,5]])
 
 
-# In[24]:
+# In[16]:
 
-print(DensityTree.get_results())
+print(partition_function(tree,100))
 
 
-# In[7]:
+# In[10]:
 
 nodes=DensityTree.leaf_nodes()
+tree=DensityTree.tree
 plt.plot(data[:,0],data[:,1], "o")
 for d in nodes:
-    print(d.history)
-    print(d.root.shape)
-    plt.plot(d.mean[0],d.mean[1],'o',color='r')
+    print(tree[d].history)
+    print(tree[d].root.shape)
+    plt.plot(tree[d].mean[0],tree[d].mean[1],'o',color='r')
  #   lines=d.history
   #  if lines['direction']==0:
    #     plot
