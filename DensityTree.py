@@ -76,7 +76,7 @@ class RandomDensityTree:
         self.num_splits=num_splits
         
     def fit(self,data,axis=0):
-        if(axis==1):
+        if(axis=1):
             data=np.transpose(data)
         self.root=data
         self.mean = np.mean(data,axis=0)
@@ -136,7 +136,7 @@ class Node:
         self.isLeaf=False
         self.left_child=float('nan')
         self.right_child=float('nan')
-        if(max_depth==0 or data.shape[0]==1):
+        if(max_depth==0 or data.shape[1]==1):
             self.isLeaf=True
            
         else:
