@@ -6,7 +6,7 @@
 print(1)
 
 
-# In[5]:
+# In[1]:
 
 import numpy as np
 from math import isnan
@@ -40,10 +40,6 @@ def info_gain(data,cov,data_l,cov_l,data_r,cov_r):
         c=0.000000000000000000001
     c=(data_r.shape[0]/data.shape[0]) * np.log(abs(c))
     
-    
- #   print('b: '+str(b) +' shape: '+str(data_l.shape))
-  #  print('c: '+str(c) +' shape: '+str(data_r.shape))
-   # print('infogain: '+str(a-b-c))
     return a-b-c
     
 def split_data_axis(data,split,direction):
@@ -235,7 +231,7 @@ class Node:
             else:
 
                 best=np.argmax(info_gains)
-                print('best infogain: '+str(info_gains[best]))
+                #print('best infogain: '+str(info_gains[best]))
             #    print(min_infogain)
                 if info_gains[best] >= min_infogain:
                     
@@ -247,10 +243,10 @@ class Node:
                             tree.append(0)
                    # print(left_datas[best].shape)
                     #print(right_datas[best].shape)
-                    print(self.history)
+              #      print(self.history)
                     #print((left_datas[best],covs_left[best],history,tree,self.num_splits,self.min_infogain,self.maxdepth-1,2*pointer+1))
                     self.history[len(self.history)-1]['child']='left'
-                    print(('history',self.history))
+               #     print(('history',self.history))
                     leftnode=Node(left_datas[best],covs_left[best],self.history,tree,self.num_splits,self.min_infogain,self.maxdepth-1,2*pointer+1,rand=rand,splittype=self.splittype)
                     tree[2*pointer+1]=leftnode
                     self.left_child=leftnode
@@ -372,129 +368,6 @@ theta= max(I)
 '''
 
 
-# In[33]:
-
-import numpy as np
-print(DensityTree.get_means())
-
-
-# In[34]:
-
-print(data.shape)
-print(np.transpose(data))
-
-
-# In[16]:
-
-get_ipython().magic('matplotlib inline')
-import matplotlib.pyplot as plt
-#
-
-data = np.zeros([100,2])
-for i in range(30):
-    data[i]=np.random.normal([2,2],0.5)
-   # data[i][0]=np.random.normal(2,0.5)[0]
-    #data[i][1]=np.random.normal(2)[1]
-for i in range(30):
-    data[30+i]=np.random.normal([5,5],0.5)
-    #data[30+i][1]=np.random.normal(5,0.5) 
-for i in range(30):
-    data[60+i]=np.random.normal([5,1],0.5)
-   
-for i in range(10):
-    data[90+i]=np.random.normal([1,5],0.5)
-
-DensityTree=RandomDensityTree(max_depth=2,min_infogain=0.2,num_splits=50)
-DensityTree.fit(data)
-DensityTree2=RandomDensityTree(max_depth=2,splittype='linear',min_infogain=0.2,num_splits=400)
-DensityTree2.fit(data)
-print(DensityTree2.tree)
-print(DensityTree2.leaf_nodes())
-
-print(DensityTree.leaf
-# In[28]:
-
-
-DensityTree2=RandomDensityTree(max_depth=4, min_infogain=0.5)
-DensityTree2.fit(data)
-DensityTree2.predict([[2,3],[4,5]])
-
-
-# In[59]:
-
-print(partition_function(tree,100))
-
-
-# In[21]:
-
-from matplotlib.patches import Ellipse
-
-def plotsplits(h,s,hor=[0,6],vert=[0,6]):
-   
-        plotsplits(h,s+1,hor,vert) 
-
-fig = plt.figure(0)
-ax = fig.add_subplot(111)
-
-nodes=DensityTree2.leaf_nodes()
-print(nodes)
-for d in nodes:
-    print(d)
-tree=DensityTree2.tree
-plt.plot(data[:,0],data[:,1], "o")
-for d in nodes:
-    plt.plot(tree[d].root[:,0],tree[d].root[:,1], "o")
-    vert=[0,6]
-    hor=[0,6]
-    for h in tree[d].history:
-        
-       
-        ax.plot([(h['split']+h['direction']*4)[0],(h['split']+h['direction']*-4)[0]],[(h['split']+h['direction']*4)[1],(h['split']+h['direction']*-4)[1]],color='k')
-    #        if(h['child']=='left'):
-     #           hor=[hor[0],h['split']]
-      #      else:
-      #          hor=[h['split'],hor[1]]
-      #  else:
-       #     ax.plot(hor,[h['split'],h['split']],color='k')
-        #    if(h['child']=='left'):
-         #       vert=[vert[0],h['split']]
-          #  else:
-           #     vert=[h['split'],vert[1]]
-    vec1=np.array([0,1])
-    print(('tree covariance: ',tree[d].cov))
-    print(('tree covariance 2: ',np.cov(np.transpose(tree[d].root))))
-    #ax.plot([tree[d].mean[0],(tree[d].cov[:,0]-tree[d].mean)[0]],[tree[d].mean[1],(tree[d].cov[:,1]-tree[d].mean)[1]])
-    ax.add_artist(Ellipse(xy=tree[d].mean, width=np.linalg.norm(tree[d].cov[:,0])*3, height=np.linalg.norm(tree[d].cov[:,1])*3, angle=np.arccos(np.dot(vec1,tree[d].cov[:,0])/(np.linalg.norm(vec1)*np.linalg.norm(tree[d].cov[:,0])))))
-   # if(len(h)<s):
-    #print(tree[d].root)
-    plt.plot(tree[d].mean[0],tree[d].mean[1],'o',color='r')
-    plt.savefig('example.png')
-   # plt.show()
- #   lines=d.history
-  #  if lines['direction']==0:
-   #     plot
-   # plt.savefig('results')
-    
-#plt.plot([3.4611913424559244,3.4611913424559244],[0,6])
-#plt.plot([0,6],[ 4.0724581571601854, 4.0724581571601854])
-#plt.plot([0,6],[ 2.2392637110032361, 2.2392637110032361])
-#plt.plot([0,6],[ 2.6017827096744832,  2.6017827096744832])
-
-#plt.plot([0,6],[4.3153900996135484,  4.3153900996135484])
-
-#plt.plot([0,6],[ 3.3000801823937387, 3.3000801823937387])
-
-#plt.plot( 0.86719180226239123, 'direction': 0)
-#plt.plot([2.0024517583718917,2.0024517583718917],[-1,6])
-#plt.plot([0.9883004157571309,0.9883004157571309],[-1,6])
-
-
-#plt.plot( 4.64157772,  0.63988413,"o")
-#plt.plot( 3.03334449,  2.46542821,"o")
-#plt.plot( 4.24936537,  5.14213751,"o")
-#plt.plot( 3.23164995,  5.9834305 ,"o")
-
-
 # In[ ]:
 
 #    for h in tree[d].history:
@@ -513,7 +386,7 @@ for d in nodes:
            #     vert=[h['split'],vert[1]]
 
 
-# In[22]:
+# In[2]:
 
 from matplotlib.patches import Ellipse
 
@@ -521,57 +394,146 @@ def plotsplits(h,s,hor=[0,6],vert=[0,6]):
    
         plotsplits(h,s+1,hor,vert) 
 
-fig = plt.figure(0)
-ax = fig.add_subplot(111)
 
-nodes=DensityTree.leaf_nodes()
-tree=DensityTree.tree
-plt.plot(data[:,0],data[:,1], "o")
-for d in nodes:
-    print(tree[d].split)
-    print(tree[d].history)
-    vert=[0,6]
-    hor=[0,6]
-    for h in tree[d].history:
-        #plotsplits(h,0)
-        if h['direction']==0:
-            ax.plot([h['split'],h['split']],vert,color='k')
-            if(h['child']=='left'):
-                hor=[hor[0],h['split']]
-            else:
-                hor=[h['split'],hor[1]]
-        else:
-            ax.plot(hor,[h['split'],h['split']],color='k')
-            if(h['child']=='left'):
-                vert=[vert[0],h['split']]
-            else:
-                vert=[h['split'],vert[1]]
-    vec1=np.array([0,1])
-    print(('tree covariance: ',tree[d].cov))
-    #ax.plot([tree[d].mean[0],(tree[d].cov[:,0]-tree[d].mean)[0]],[tree[d].mean[1],(tree[d].cov[:,1]-tree[d].mean)[1]])
-    ax.add_artist(Ellipse(xy=tree[d].mean, width=np.linalg.norm(tree[d].cov[:,0]*10), height=np.linalg.norm(tree[d].cov[:,1]*10), angle=np.arccos(np.dot(vec1,tree[d].cov[:,0]*10)/(np.linalg.norm(vec1)*np.linalg.norm(tree[d].cov[:,0]*10)))))
-   # if(len(h)<s):
-    #print(tree[d].root)
-    plt.plot(tree[d].mean[0],tree[d].mean[1],'o',color='r')
-    plt.savefig('example.png')
- #   lines=d.history
-  #  if lines['direction']==0:
-   #     plot
-   # plt.savefig('results')
+def plotaxis(data,DensityTree,xlim=[0,6],ylim=[0,6],title='test',showcov=True):
+    fig = plt.figure(figsize=(10,8))
+    ax = fig.add_subplot(111)
+    ax.set_title(title)
+    ax.set_ylim(ylim[0],ylim[1])
+    ax.set_xlim(xlim[0],xlim[1])
 
-
-# In[181]:
-
-data2 = np.zeros([100,2])
-for i in range(100):
-    data2[i]=np.random.normal([2,2],1)
+    nodes=DensityTree.leaf_nodes()
+    tree=DensityTree.tree
+    ax.plot(data[:,0],data[:,1], "o")
     
-print(np.linalg.det(np.cov(np.transpose(data2))))
+    for d in nodes:
+#print(tree[d].split)
+ #       print(tree[d].history)
+        vert=xlim
+        hor=ylim
+        for h in tree[d].history:
+            #plotsplits(h,0)
+            if h['direction']==0:
+                ax.plot([h['split'],h['split']],vert,color='k')
+                if(h['child']=='left'):
+                    hor=[hor[0],h['split']]
+                else:
+                    hor=[h['split'],hor[1]]
+            else:
+                ax.plot(hor,[h['split'],h['split']],color='k')
+                if(h['child']=='left'):
+                    vert=[vert[0],h['split']]
+                else:
+                    vert=[h['split'],vert[1]]
+        if(showcov==True):
+            vec1=np.array([0,1])
+            eigvals,eigvecs=np.linalg.eig(tree[d].cov)
+            e=Ellipse(xy=tree[d].mean, width=math.sqrt(eigvals[0])*3, height=math.sqrt(eigvals[1])*3, angle=np.arccos(np.dot(eigvecs[0],vec1)/(np.linalg.norm(vec1)*np.linalg.norm(eigvecs[0]))),alpha=0.5)
+            ax.add_artist(e)
+
+            plt.plot(tree[d].mean[0],tree[d].mean[1],'o',color='r')
+        #plt.savefig('example.png')
+     #   lines=d.history
+      #  if lines['direction']==0:
+       #     plot
+       # plt.savefig('results')
+    plt.show()
+    
+
+   # plt.savefig('results')
+    
+def plotlin(data,DensityTree,xlim=[0,6],ylim=[0,6],title='test',showcov=True):
+    fig = plt.figure(figsize=(10,8))
+    ax = fig.add_subplot(111)
+    ax.set_title(title)
+    ax.set_ylim(ylim[0],ylim[1])
+    ax.set_xlim(xlim[0],xlim[1])
+
+    nodes=DensityTree.leaf_nodes()
+    tree=DensityTree.tree
+    ax.plot(data[:,0],data[:,1], "o")
+    
+    for d in nodes:
+
+        vert=xlim
+        hor=ylim
+        for h in tree[d].history:
+          #  multiplier1 = np.cross((h['split'] − [0,0]), h['direction']) / ([0,6] × h['direction'])
+          #  t = (q − p) × s / (r × s)
+            ax.plot([(h['split']+h['direction']*10)[0],(h['split']+h['direction']*-10)[0]],[(h['split']+h['direction']*10)[1],(h['split']+h['direction']*-10)[1]],color='k')
+            ax.plot(h['split'][0],h['split'][1],"s",color='g')
+        if(showcov==True):
+            vec1=np.array([0,1])
+            eigvals,eigvecs=np.linalg.eig(tree[d].cov)
+            e=Ellipse(xy=tree[d].mean, width=math.sqrt(eigvals[0])*3, height=math.sqrt(eigvals[1])*3, angle=np.arccos(np.dot(eigvecs[0],vec1)/(np.linalg.norm(vec1)*np.linalg.norm(eigvecs[0]))),alpha=0.5)
+            ax.add_artist(e)
+
+            plt.plot(tree[d].mean[0],tree[d].mean[1],'o',color='r')
+
+    plt.show()
+#plotaxis(data,DensityTree,xlim=[0,6],ylim=[0,6])
 
 
-# In[19]:
+# In[3]:
 
-print(np.log(-1))
+get_ipython().magic('matplotlib inline')
+import matplotlib.pyplot as plt
+#
+
+data = np.zeros([200,2])
+for i in range(60):
+    data[i]=np.random.normal([2,2],0.4)
+   # data[i][0]=np.random.normal(2,0.5)[0]
+    #data[i][1]=np.random.normal(2)[1]
+for i in range(60):
+    data[60+i]=np.random.normal([5,5],0.4)
+    #data[30+i][1]=np.random.normal(5,0.5) 
+for i in range(60):
+    data[120+i]=np.random.normal([5,1],0.4)
+   
+for i in range(20):
+    data[180+i]=np.random.normal([1,5],0.4)
+plt.figure(figsize=(10,8))
+plt.plot(data[:,0],data[:,1], "o")
+
+plt.show()
+
+
+# In[4]:
+
+DensityTree1=RandomDensityTree(max_depth=2,min_infogain=0.2,num_splits=50)
+DensityTree1.fit(data)
+
+plotaxis(data,DensityTree1,xlim=[0,6],ylim=[0,6],showcov=False,title='Illustration Splits')
+plotaxis(data,DensityTree1,xlim=[0,6],ylim=[0,6],title='Results: Tree Depth = 2')
+
+#DensityTree2=RandomDensityTree(max_depth=2,splittype='linear',min_infogain=0.2,num_splits=400)
+#DensityTree2.fit(data)
+
+
+# In[5]:
+
+DensityTree2=RandomDensityTree(max_depth=1,min_infogain=0.2,num_splits=50)
+DensityTree2.fit(data)
+plotaxis(data,DensityTree2,xlim=[0,6],ylim=[0,6],title='Tree Depth = 1')
+
+
+# In[6]:
+
+DensityTree3=RandomDensityTree(max_depth=4,min_infogain=0.001,num_splits=50)
+DensityTree3.fit(data)
+plotaxis(data,DensityTree3,xlim=[0,6],ylim=[0,6],title='Tree Depth = 4')
+
+
+
+
+# In[9]:
+
+DensityTree5=RandomDensityTree(max_depth=2,min_infogain=0.2,num_splits=50,splittype='linear')
+DensityTree5.fit(data)
+
+plotlin(data,DensityTree5,xlim=[0,6],ylim=[0,6],showcov=False,title='Illustration Splits')
+plotlin(data,DensityTree5,xlim=[0,6],ylim=[0,6],title='Results: Tree Depth = 2')
 
 
 # In[ ]:
