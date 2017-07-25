@@ -43,18 +43,9 @@ def info_gain(data,cov,data_l,cov_l,data_r,cov_r):
     return a-b-c
     
 def split_data_axis(data,split,direction):
-#    print('hi')
-    left_data=np.array([[0,0]])
-    right_data=np.array([[0,0]])
-    for d in range(data.shape[0]):
-        if data[d][direction]<=split:
-            left_data=np.append(left_data,np.reshape(data[d],(1,data[d].shape[0])),axis=0)
-        else:
-            right_data=np.append(right_data,np.reshape(data[d],(1,data[d].shape[0])),axis=0)
-            
-   # print(left_data)
-    left_data=np.delete(left_data,0,axis=0)
-    right_data=np.delete(right_data,0,axis=0)
+    mask = data[:,direction]<=split
+    left_data = data[mask]
+    right_data = data[~mask]
     return(left_data,right_data)
     
 def split_data_lin(data,start,direction):
